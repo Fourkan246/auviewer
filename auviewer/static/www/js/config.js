@@ -18,6 +18,8 @@ let globalAppConfig = {
 	deleteAnnotationURL: 'delete_annotation',
 	detectPatternsURL: 'detect_patterns',
 	initialFilePayloadURL: 'initial_file_payload',
+	createSupervisorPrecomputerUrl: 'create_supervisor_precomputer',
+	initialSupervisorPayloadURL: 'initial_supervisor_payload',
 	getProjectAnnotationsURL: 'get_project_annotations',
 	seriesRangedDataURL: 'series_ranged_data',
 	updateAnnotationURL: 'update_annotation',

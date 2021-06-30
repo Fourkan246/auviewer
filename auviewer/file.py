@@ -51,10 +51,46 @@ class File:
 
     @property
     def f(self):
+        if not self.f_open:
+            if self.mode() == 'file':
+                while True:
+                    # Open the original file
+                    self.file = audata.File.open(str(self.origFilePathObj), return_datetimes=False)
+
+                    # Load the processed file if it exists
+                    if self.procFilePathObj.exists():
+                        logging.info(f"Opening processed file {self.procFilePathObj}.")
+                        self.processed_file = audata.File.open(str(self.procFilePathObj), return_datetimes=False)
+                        self.pf_open = True
+
+                        # If we've been asked only to generate the processed file and it already exists, return now.
+                        if self.processOnly:
+                            break
+                    
+                    self.pf
+
+                    # Load series data into memory
+                    self.load()
+                    self.f_open = True
+
+                    break
+
         return self.file
 
     @property
     def pf(self):
+        if not self.pf_open:
+            # If the processed file does not exist and we're supposed to process
+            # new file data, process it.
+            if not self.procFilePathObj.exists() and self.processNewFiles:
+                logging.info(f"Generating processed file for {self.origFilePathObj}")
+                self.process()
+                self.pf_open = True
+
+            # If the processed file still does not exist, raise an exception
+            if not self.procFilePathObj.exists():
+                raise Exception(f"File {self.origFilePathObj} has not been processed and therefore cannot be loaded.")
+        
         return self.processed_file
 
     def __del__(self):
@@ -72,6 +108,19 @@ class File:
             self.processed_file.close()
         except:
             pass
+
+    def close_file(self):
+        try:
+            if self.f_open:
+                self.f.close()
+                self.f_open = False
+            if self.pf_open:
+                self.pf.close()
+                self.pf_open = False
+        except Exception as e:
+            logging.error(str(e))
+            raise Exception(f"Error closing file {self.id}") from e
+
 
     def addSeriesData(self, seriesData):
         """
@@ -309,42 +358,14 @@ class File:
         return events
 
     def getInitialPayload(self, user_id):
+
+        # Load the file if it hasn't been done before or was closed before
+        self.f
+
         """Produces JSON output for all series in the file at the maximum time range."""
 
         logging.info(f"Assembling all series full output for file {self.origFilePathObj}.")
         start = time.time()
-
-        if self.mode() == 'file':
-            if not self.f_open:
-                while True:
-                    # Open the original file
-                    self.file = audata.File.open(str(self.origFilePathObj), return_datetimes=False)
-
-                    # Load the processed file if it exists
-                    if self.procFilePathObj.exists():
-                        logging.info(f"Opening processed file {self.procFilePathObj}.")
-                        self.processed_file = audata.File.open(str(self.procFilePathObj), return_datetimes=False)
-                        self.pf_open = True
-
-                        # If we've been asked only to generate the processed file and it already exists, return now.
-                        if self.processOnly:
-                            break
-
-                    # Load series data into memory
-                    self.load()
-                    self.f_open = True
-
-                    # If the processed file does not exist and we're supposed to process
-                    # new file data, process it.
-                    if not self.procFilePathObj.exists() and self.processNewFiles:
-                        logging.info(f"Generating processed file for {self.origFilePathObj}")
-                        self.process()
-                        self.pf_open = True
-
-                    # If the processed file still does not exist, raise an exception
-                    if not self.procFilePathObj.exists():
-                        raise Exception(f"File {self.origFilePathObj} has not been processed and therefore cannot be loaded.")
-                    break
 
         # Assemble the output object.
         outputObject = {

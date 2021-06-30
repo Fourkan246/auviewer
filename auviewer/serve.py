@@ -140,20 +140,14 @@ def createApp():
 
         for p in projects:
             proj = getProject(p['id'])
-            for f in proj.files:
-                try:
-                    if f.f_open:
-                        f.f.close()
-                        f.f_open = False
-                    if f.pf_open:
-                        f.pf.close()
-                        f.pf_open = False
-                except Exception as e:
-                    return app.response_class(
-                            response=simplejson.dumps({'success': False}),
-                            status=200,
-                            mimetype='application/json'
-                        )
+            try:
+                proj.close_project()
+            except Exception as e:
+                return app.response_class(
+                        response=simplejson.dumps({'success': False}),
+                        status=200,
+                        mimetype='application/json'
+                    )
                  
         ### To be implemented here...
         return app.response_class(
@@ -179,17 +173,10 @@ def createApp():
             )
 
         ### To be implemented here...
-        for f in project.files:
-            try:
-                if f.f_open:
-                    f.f.close()
-                    f.f_open = False
-                if f.pf_open:
-                    f.pf.close()
-                    f.pf_open = False
-            except Exception as e:
-                print(e)
-                return app.response_class(
+        try:
+            project.close_project()
+        except Exception as e:
+            return app.response_class(
                         response=simplejson.dumps({'success': False}),
                         status=200,
                         mimetype='application/json'
@@ -231,13 +218,14 @@ def createApp():
             )
 
         ### To be implemented here...
-        if file.f_open:
-            print("Closing file")
-            file.f.close()
-            file.f_open = False
-        if file.pf_open:
-            file.pf.close()
-            file.pf_open = False
+        try: 
+            file.close_file()
+        except Exception as e:
+            return app.response_class(
+                response=simplejson.dumps({'success': False}),
+                status=200,
+                mimetype='application/json'
+            )
 
         ### This is the success response -- if there is an error you want to catch, just
         ### the same response below but with success=False!

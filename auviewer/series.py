@@ -55,7 +55,7 @@ class Series:
 
             # Grab the unit, if available
             try:
-                self.units = self.fileparent.f['/'.join(self.h5path)].meta['dwc_meta']['unitLabel']
+                self.units = self.fileparent.file['/'.join(self.h5path)].meta['dwc_meta']['unitLabel']
             except:
                 self.units = ""
 
@@ -131,7 +131,7 @@ class Series:
             else:
 
                 # Get reference to the series datastream from the HDF5 file
-                dataset = self.fileparent.f['/'.join(self.h5path)][()]
+                dataset = self.fileparent.file['/'.join(self.h5path)][()]
                 nones = [None] * self.rd.len
                 data = [list(i) for i in zip(dataset[self.timecol].values.astype(np.float64), nones, nones, dataset[self.valcol].values.astype(np.float64))]
                 output_type = 'real'
@@ -226,7 +226,7 @@ class Series:
             return
 
         # Get reference to the series datastream from the HDF5 file
-        dataset = self.fileparent.f['/'.join(self.h5path)][()]
+        dataset = self.fileparent.file['/'.join(self.h5path)][()]
 
         rawTimes = dataset[self.timecol].values.astype(np.float64)
         rawValues = dataset[self.valcol].values.astype(np.float64)

@@ -64,6 +64,19 @@ class Project:
         except:
             pass
 
+    def close_project(self):
+        for f in self.files:
+            try:
+                if f.f_open:
+                    f.f.close()
+                    f.f_open = False
+                if f.pf_open:
+                    f.pf.close()
+                    f.pf_open = False
+            except Exception as e:
+                logging.error(str(e))
+                raise Exception(f"Error closing file {f.id} in project {self.id}") from e
+
     def createPatternSet(self, name: str, description=None, showByDefault: bool = False) -> PatternSet:
         """
         Create and return a new pattern set.

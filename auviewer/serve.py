@@ -417,7 +417,7 @@ def createApp():
 
         filesPayload = project.queryWeakSupervision({
             'randomFiles': True,
-            'amount': 5
+            # 'amount': 5
         })
         # {
         #     'randomFiles': bool,

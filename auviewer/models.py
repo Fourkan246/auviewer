@@ -31,9 +31,9 @@ class Annotation(db.Model):
         return f"ID: {self.id}, UID: {self.user_id}, PID: {self.project_id}, FID: {self.file_id}, PID: {self.pattern_id}, Series: {self.series}, Boundaries: {self.left} {self.right} {self.top} {self.bottom}, Label: {self.label}"
 
 #many to many table joining labelers and thresholds
-labelerThresholds = db.Table('association', db.Base.metadata,
-    db.Column('labeler_id', db.ForeignKey('labelers.id'),
-    db.Column('threshold_id', db.ForeignKey('thresholds.id'))))
+labelerThresholds = db.Table('labeler_thresholds',
+    db.Column('labeler_id', db.Integer, db.ForeignKey('labelers.id'), primary_key=True),
+    db.Column('threshold_id', db.Integer, db.ForeignKey('thresholds.id'), primary_key=True))
 
 class Labeler(db.Model):
     __tablename__ = 'labelers'

@@ -30,6 +30,14 @@ class Annotation(db.Model):
     def __repr__(self):
         return f"ID: {self.id}, UID: {self.user_id}, PID: {self.project_id}, FID: {self.file_id}, PID: {self.pattern_id}, Series: {self.series}, Boundaries: {self.left} {self.right} {self.top} {self.bottom}, Label: {self.label}"
 
+class SupervisorModule(db.Model):
+    __tablename__ = 'supervisor_modules'
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete='CASCADE'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    series_of_interest = db.Column(db.String(255), nullable=False)
+    series_to_render = db.Column(db.String(255), nullable=True)
+
 #many to many table joining labelers and thresholds
 labelerThresholds = db.Table('labeler_thresholds',
     db.Column('labeler_id', db.Integer, db.ForeignKey('labelers.id'), primary_key=True),

@@ -687,8 +687,8 @@ def createApp():
             status=200,
             mimetype='application/json'
         )
-    @app.route(config['rootWebPath']+'/initial_supervisor_payload')
-    @login_required
+    # @app.route(config['rootWebPath']+'/initial_supervisor_payload')
+    # @login_required
     def initial_supervisor_payload():
         project_id = request.args.get('project_id', type=int)
 
@@ -896,8 +896,8 @@ def createApp():
             mimetype='application/json'
         )
 
-    @app.route(config['rootWebPath']+'/query_supervisor_series', methods=['POST'])
-    @login_required
+    # @app.route(config['rootWebPath']+'/query_supervisor_series', methods=['POST'])
+    # @login_required
     def query_supervisor_series():
         project_id = request.args.get('project_id', type=int)
         request_data = request.get_json()

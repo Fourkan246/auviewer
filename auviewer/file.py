@@ -311,7 +311,7 @@ class File:
         logging.info(f"Completed assembly of all event series for file {self.origFilePathObj}. Took {str(round(end - start, 5))}s.")
 
         return events
-    
+
     def _loadonstart(self):
         while True:
             # Open the original file

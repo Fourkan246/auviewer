@@ -56,7 +56,8 @@ Project.prototype.getAnnotations = function(callback=null) {
 		// Populate the project annotations
 		if (Array.isArray(data) && data.length > 0) {
 			for (let a of data) {
-				this.annotations.push(new Annotation({valuesArrayFromBackend: a}, 'annotation'));
+				// console.log(a, typeof(a));
+				this.annotations.push(new Annotation(this.assignmentsManager.currentTargetAssignmentSet || this.assignmentsManager.assignmentsets[0], {valuesArrayFromBackend: a}, 'annotation'));
 			}
 		}
 

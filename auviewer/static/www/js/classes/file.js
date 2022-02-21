@@ -1193,12 +1193,11 @@ File.prototype.renderMetadata = function() {
 
 	let div = document.createElement('DIV');
 	div.id = 'metadata';
-	div.innerHTML = '<h2>Metadata</h2>';
+	div.innerHTML = '<h6>Metadata</h6>';
 	for (let property of Object.keys(this.metadata)) {
-		div.innerHTML += '<br>'+property+': '+this.metadata[property];
+		div.innerHTML += ' '+property+': '+this.metadata[property]+'<br />';
 	}
-	document.getElementById('graphs').appendChild(div);
-
+	document.getElementById('controls').appendChild(div);
 };
 
 // Reset zoom to outermost view
@@ -1311,8 +1310,9 @@ File.prototype.triggerResizeAllGraphs = function() {
 };
 
 // Request and update data for the current view of all graphs for current file.
+// Optionally, specify left & right to override load window.
 // NOTE: There is an identically-named function on both File and Graph classes.
-File.prototype.updateCurrentViewData = function() {
+File.prototype.updateCurrentViewData = function(left=false, right=false) {
 
 	// Holds the array of series IDs for which we will request updated data.
 	let series = [];
@@ -1347,12 +1347,29 @@ File.prototype.updateCurrentViewData = function() {
 
 	// Grab the x-axis range from the last showing graph (all graphs should be
 	// showing the same range since they are synchronized).
-	const xRange = lastGraphShowing.dygraphInstance.xAxisRange();
-	const left = xRange[0]/1000-this.fileData.baseTime;
-	const right = xRange[1]/1000-this.fileData.baseTime;
+	if (left === false || right === false) {
+
+		const xRange = lastGraphShowing.dygraphInstance.xAxisRange();
+		left = xRange[0]
+		right = xRange[1]
+
+		// Add a cushion
+		const windowLength = right - left;
+		left -= windowLength * 0.4;
+		right += windowLength * 0.4;
+
+	}
+
+	// TEMP FOR PLAYBACK - assume our currently loaded downsample data is the current zoom window
+	this.playback_currently_loaded_ds_left = left
+	this.playback_currently_loaded_ds_right = right
+
+	// Convert to seconds from file offset which the backend expects
+	const leftForBE = left / 1000 - this.fileData.baseTime;
+	const rightForBE = right / 1000 - this.fileData.baseTime;
 
 	// Request the updated view data from the backend.
-	requestHandler.requestSeriesRangedData(this.parentProject.id, this.id, series, left, right, this.getPostloadDataUpdateHandler());
+	requestHandler.requestSeriesRangedData(this.parentProject.id, this.id, series, leftForBE, rightForBE, this.getPostloadDataUpdateHandler());
 
 };
 
@@ -1457,3 +1474,45 @@ File.prototype.zoomTo = function(timeWindow, suppressDataRefresh=false) {
 	}
 
 };
+
+// Pan forward by 'by' milliseconds.
+File.prototype.pan = function(by) {
+
+	// Grab the first showing graph
+	const g = this.getFirstShowingGraph();
+
+	// Grab the x-axis range from the last showing graph (all graphs should be
+	// showing the same range since they are synchronized).
+	const xRange = g.dygraphInstance.xAxisRange();
+	const left = xRange[0]+by;
+	const right = xRange[1]+by;
+
+	// Pan by the specified amount, suppressing the automatic data load
+	this.zoomTo([left, right], true)
+
+	// Load if needed
+	const presumedDataLoadTime = 7 * 1000; // assumed data load from backend takes this long, in milliseconds
+	const loadThisMuchAhead = presumedDataLoadTime*this.playback_speed*2 // load ahead this many milliseconds
+	if (this.playback_currently_loaded_ds_right < right + presumedDataLoadTime * this.playback_speed) {
+		console.log('Loading data.')
+		this.updateCurrentViewData(left, right + loadThisMuchAhead)
+	}
+
+};
+
+File.prototype.play = function(speed=1) {
+	try {
+		clearInterval(this.playback_intervalRef);
+	} catch (e) {}
+	console.log('Playing at speed', speed);
+	document.getElementById('playbackSpeedSlider').value = speed;
+	document.getElementById('currentSpeedOutput').innerText = speed+'x';
+	const interval = 100; // interval in milliseconds
+	this.playback_speed = speed;
+	const panBy = interval * speed; // pan by in milliseconds
+	this.playback_intervalRef = setInterval(this.pan.bind(this), interval, panBy);
+}
+
+File.prototype.stop = function() {
+	clearInterval(this.playback_intervalRef);
+}

@@ -23,6 +23,10 @@ class File:
 
         logging.info(f"\n------------------------------------------------\nACCESSING FILE: (ID {id}) {origFilePathObj}\n------------------------------------------------\n")
 
+        # TODO: TEMP
+        processNewFiles = False
+        processOnly = False
+
         # Holds reference to the project parent
         self.projparent = projparent
 
@@ -527,6 +531,9 @@ class File:
 
     def process(self):
         """Process and store all downsamples for all series for the file."""
+
+        logging.critical("File.process() called unexpectedly. Quitting.")
+        quit()
 
         try:
 

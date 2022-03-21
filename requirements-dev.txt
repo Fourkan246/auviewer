@@ -17,6 +17,7 @@ pandoc
 passlib
 psutil
 pycrypto
+pytest
 sphinx
 sphinx_gallery
 sphinx_rtd_theme

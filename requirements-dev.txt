@@ -16,7 +16,7 @@ pandas
 pandoc
 passlib
 psutil
-pycrypto
+pycryptodome
 sphinx
 sphinx_gallery
 sphinx_rtd_theme

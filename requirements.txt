@@ -12,7 +12,7 @@ numpy
 pandas
 passlib
 psutil
-pycrypto
+pycryptodome
 simplejson
 sklearn
 sqlalchemy
